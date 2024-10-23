@@ -30,7 +30,6 @@ kotlin {
     }
 }
 
-
 compose.desktop {
     application {
         mainClass = "net.msukanen.splintersector_server.MainKt"

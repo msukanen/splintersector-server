@@ -3,7 +3,7 @@ package net.msukanen.splintersector_server
 class Greeting {
     private val platform = getPlatform()
 
-    fun greet(): String {
-        return "Hello, ${platform.name}!"
+    override fun toString(): String {
+        return "${platform.name} ..."
     }
 }

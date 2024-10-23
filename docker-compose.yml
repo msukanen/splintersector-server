@@ -1,0 +1,8 @@
+services:
+  mysql:
+    image: mysql:latest
+    environment:
+      MYSQL_ROOT_PASSWORD: pass1234
+      MYSQL_DATABASE: sss_test
+    ports:
+      - "3306:3306"
