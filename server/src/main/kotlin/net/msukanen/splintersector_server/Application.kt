@@ -1,5 +1,6 @@
 package net.msukanen.splintersector_server
 
+import io.ktor.http.ContentType
 import io.ktor.http.HttpStatusCode
 import io.ktor.server.application.*
 import io.ktor.server.engine.*
@@ -10,6 +11,9 @@ import io.ktor.server.routing.*
 import net.msukanen.splintersector_server.db.RoomRepository
 import org.jetbrains.exposed.sql.Database
 import io.ktor.serialization.kotlinx.json.*
+import kotlinx.serialization.json.Json
+import kotlinx.serialization.builtins.serializer
+import net.msukanen.splintersector_server.model.Room
 
 fun main() {
     embeddedServer(Netty, port = 15551, module = Application::module)
@@ -49,8 +53,8 @@ fun Application.module() {
 
 fun Application.configureDatabases() {
     Database.connect(
-        "jdbc:mysql://localhost:3306/sss_test",
-        user = "",
+        url = "jdbc:mysql://localhost:3306/sss_test",
+        user = "root",
         password = "pass1234"
     )
 }

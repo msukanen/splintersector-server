@@ -1,6 +1,7 @@
 plugins {
     alias(libs.plugins.kotlinJvm)
     alias(libs.plugins.ktor)
+    alias(libs.plugins.kotlinSerialization)
     application
 }
 
@@ -27,6 +28,7 @@ dependencies {
     implementation(libs.exposed.json)
     implementation(libs.exposed.money)
     implementation(libs.kotlinx.serialization.json)
+    implementation(libs.mysql.connector.java)
     //implementation(libs.exposed.spring.boot.starter)
     testImplementation(libs.ktor.server.tests)
     testImplementation(libs.kotlin.test.junit)

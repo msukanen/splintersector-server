@@ -6,4 +6,6 @@ import kotlinx.serialization.Serializable
  * Room data lives here.
  */
 @Serializable
-class Room(val name: String, val refId: Int)
+class Room(val name: String, val refId: Int) {
+    override fun toString(): String = "Room(name=\"$name\", refId=$refId)"
+}
