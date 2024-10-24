@@ -16,6 +16,9 @@ dependencies {
     implementation(libs.logback)
     implementation(libs.ktor.server.core)
     implementation(libs.ktor.server.netty)
+    implementation(libs.ktor.server.content.negotiation)
+    implementation(libs.ktor.serialization)
+    implementation(libs.ktor.serialization.kotlinx.json)
     implementation(libs.exposed.core)
     implementation(libs.exposed.crypt)
     implementation(libs.exposed.dao)
@@ -23,9 +26,11 @@ dependencies {
     implementation(libs.exposed.kotlin.datetime)
     implementation(libs.exposed.json)
     implementation(libs.exposed.money)
+    implementation(libs.kotlinx.serialization.json)
     //implementation(libs.exposed.spring.boot.starter)
     testImplementation(libs.ktor.server.tests)
     testImplementation(libs.kotlin.test.junit)
+    testImplementation(libs.ktor.client.content.negotiation.jvm)
 }
 
 ktor {
