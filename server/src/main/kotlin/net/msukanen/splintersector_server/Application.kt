@@ -1,10 +1,15 @@
 package net.msukanen.splintersector_server
 
+import io.ktor.http.HttpStatusCode
 import io.ktor.server.application.*
 import io.ktor.server.engine.*
 import io.ktor.server.netty.*
+import io.ktor.server.plugins.contentnegotiation.ContentNegotiation
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
+import net.msukanen.splintersector_server.db.RoomRepository
+import org.jetbrains.exposed.sql.Database
+import io.ktor.serialization.kotlinx.json.*
 
 fun main() {
     embeddedServer(Netty, port = 15551, module = Application::module)
@@ -12,6 +17,10 @@ fun main() {
 }
 
 fun Application.module() {
+    val repository = RoomRepository()
+    configureSerialization(repository)
+    configureDatabases()
+
     val serverInfo = """$SERVER_NAME @ $SERVER_HOST:$SERVER_PORT
                      |Running with ${getPlatform().name}
                      |  ↓
@@ -34,6 +43,38 @@ fun Application.module() {
                            |$usage
                            """.trimMargin()
             call.respondText(response)
+        }
+    }
+}
+
+fun Application.configureDatabases() {
+    Database.connect(
+        "jdbc:mysql://localhost:3306/sss_test",
+        user = "",
+        password = "pass1234"
+    )
+}
+
+fun Application.configureSerialization(repository: RoomRepository) {
+    install(ContentNegotiation) { json() }
+    routing {
+        route("/room") {
+            // Room by reference ID.
+            get("/r/{refId}") {
+                val refId = call.parameters["refId"]
+                if (refId == null) {
+                    call.respond(HttpStatusCode.BadRequest)
+                    return@get
+                }
+                refId.toIntOrNull()?.apply {
+                    val room = repository.roomByRefId(this)
+                    if (room == null) {
+                        call.respond(HttpStatusCode.BadRequest)
+                        return@get
+                    }
+                    call.respond(room)
+                }
+            }
         }
     }
 }
