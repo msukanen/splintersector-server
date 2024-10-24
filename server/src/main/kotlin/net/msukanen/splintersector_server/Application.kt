@@ -10,7 +10,6 @@ import io.ktor.server.routing.*
 import net.msukanen.splintersector_server.db.RoomRepository
 import org.jetbrains.exposed.sql.Database
 import io.ktor.serialization.kotlinx.json.*
-import net.msukanen.splintersector_server.model.Room
 
 fun main() {
     embeddedServer(Netty, port = 15551, module = Application::module)
@@ -63,7 +62,7 @@ fun Application.configureSerialization(repository: RoomRepository) {
             // Room by reference ID.
             get("/r/{refId}") {
                 call.parameters["refId"]?.toIntOrNull()
-                    ?.let { repository.roomByRefId(it) }
+                    ?.let { repository.byRef(it) }
                     ?.let { call.respond(it) }
                     ?: call.respond(HttpStatusCode.BadRequest)
             }
