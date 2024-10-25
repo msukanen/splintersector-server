@@ -58,13 +58,12 @@ class RoomRepository : RepoCore<Room> {
      */
     override suspend fun upsert(refId: Int, obj: Room): Boolean {
         // 'UPDATE' if room refID exists...
-        if (byRef(refId) != null) {
+        byRef(refId)?.let {
             RoomTable.update({ RoomTable.reference eq refId }) {
                 it[name] = obj.name
             }
-        }
+        } ?: {
         // ...and 'INSERT' if it doesn't.
-        else {
             RoomTable.insert {
                 it[name] = obj.name
                 it[reference] = obj.reference
