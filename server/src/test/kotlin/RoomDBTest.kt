@@ -1,4 +1,7 @@
 import kotlinx.coroutines.runBlocking
+import net.msukanen.splintersector_server.DATABASE_PASSWORD
+import net.msukanen.splintersector_server.DATABASE_URL
+import net.msukanen.splintersector_server.DATABASE_USER
 import net.msukanen.splintersector_server.db.RoomConnectionRepo
 import net.msukanen.splintersector_server.db.RoomRepository
 import org.jetbrains.exposed.sql.Database
@@ -9,15 +12,15 @@ import kotlin.test.assertNotEquals
 import kotlin.test.assertNotNull
 import kotlin.test.assertNull
 
-class BasicDBConnectionTest {
+class RoomDBTest {
     private lateinit var db: Database
 
     @BeforeTest
     fun setupDatabase() {
         db = Database.connect(
-            url = "jdbc:mysql://localhost:3306/sss_test",
-            user = "root",
-            password = "pass1234"
+            url = DATABASE_URL,
+            user = DATABASE_USER,
+            password = DATABASE_PASSWORD
         )
     }
 

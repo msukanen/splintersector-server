@@ -1,6 +1,5 @@
 package net.msukanen.splintersector_server.db
 
-import net.msukanen.splintersector_server.db.UserRoleTable.userId
 import net.msukanen.splintersector_server.model.User
 import net.msukanen.splintersector_server.model.UserRole
 import org.jetbrains.exposed.dao.IntEntity
@@ -8,7 +7,6 @@ import org.jetbrains.exposed.dao.IntEntityClass
 import org.jetbrains.exposed.dao.id.EntityID
 import org.jetbrains.exposed.dao.id.IntIdTable
 import org.jetbrains.exposed.sql.deleteWhere
-import org.jetbrains.exposed.sql.update
 import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
 import org.jetbrains.exposed.sql.insert
 
