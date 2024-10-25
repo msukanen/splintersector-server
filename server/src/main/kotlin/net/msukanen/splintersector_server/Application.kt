@@ -1,5 +1,7 @@
 package net.msukanen.splintersector_server
 
+import com.auth0.jwt.algorithms.Algorithm
+import com.auth0.jwt.exceptions.JWTVerificationException
 import io.ktor.http.HttpStatusCode
 import io.ktor.server.application.*
 import io.ktor.server.engine.*
@@ -18,8 +20,8 @@ fun main() {
 
 fun Application.module() {
     val repository = RoomRepository()
-    configureSerialization(repository)
     configureDatabases()
+    configureSerialization(repository)
 
     val serverInfo = """$SERVER_NAME @ $SERVER_HOST:$SERVER_PORT
                      |Running with ${getPlatform().name}
@@ -49,14 +51,21 @@ fun Application.module() {
 
 fun Application.configureDatabases() {
     Database.connect(
-        url = "jdbc:mysql://localhost:3306/sss_test",
-        user = "root",
-        password = "pass1234"
+        url = DATABASE_URL,
+        user = DATABASE_USER,
+        password = DATABASE_PASSWORD
     )
 }
 
 fun Application.configureSerialization(repository: RoomRepository) {
     install(ContentNegotiation) { json() }
+
+    fun verifyTokenAndRole(token: String?, role: String): String? = try {
+        "Yah"
+    } catch (e: JWTVerificationException) {
+        "Nah"
+    }
+
     routing {
         route("/room") {
             // Room by reference ID.
@@ -65,6 +74,22 @@ fun Application.configureSerialization(repository: RoomRepository) {
                     ?.let { repository.byRef(it) }
                     ?.let { call.respond(it) }
                     ?: call.respond(HttpStatusCode.BadRequest)
+            }
+
+            post("/r/{refId}") {
+                val token = call.request.headers["Authorization"]?.substringAfter("Bearer ")
+                verifyTokenAndRole(token, "DM")?.let {
+                    // TODO: handle room update here.
+                    call.respond(HttpStatusCode.OK)
+                } ?: call.respond(HttpStatusCode.Unauthorized)
+            }
+
+            post("/player/{playerId}/save") {
+                val token = call.request.headers["Authorization"]?.substringAfter("Bearer ")
+                verifyTokenAndRole(token, "PLAYER")?.let {
+                    // TODO: handle player save here.
+                    call.respond(HttpStatusCode.OK)
+                } ?: call.respond(HttpStatusCode.Unauthorized)
             }
         }
     }

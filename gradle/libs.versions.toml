@@ -9,6 +9,7 @@ ktor = "3.0.0"
 logback = "1.5.11"
 exposed = "0.55.0"
 mysql = "8.0.33"
+jjwt = "4.4.0"
 
 [libraries]
 kotlin-test = { module = "org.jetbrains.kotlin:kotlin-test", version.ref = "kotlin" }
@@ -35,6 +36,7 @@ exposed-json = { group = "org.jetbrains.exposed", name = "exposed-json", version
 exposed-money = { group = "org.jetbrains.exposed", name = "exposed-money", version.ref = "exposed" }
 exposed-spring-boot-starter = { group = "org.jetbrains.exposed", name = "exposed-spring-boot-starter", version.ref = "exposed" }
 mysql-connector-java = { group = "mysql", name = "mysql-connector-java", version.ref = "mysql" }
+jjwt = { group = "com.auth0", name = "java-jwt", version.ref = "jjwt" }
 
 [plugins]
 jetbrainsCompose = { id = "org.jetbrains.compose", version.ref = "compose-plugin" }

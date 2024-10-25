@@ -10,6 +10,8 @@ import org.jetbrains.exposed.sql.update
 
 /**
  * Room table.
+ *
+ * Mirrors, more or less, the 'rooms' table in the underlying database.
  */
 object RoomTable : IntIdTable("rooms") {
     val name = varchar("name", 64)
@@ -17,10 +19,15 @@ object RoomTable : IntIdTable("rooms") {
 }
 
 /**
- * Room DAO.
+ * Room DAO for converting database stuff into concrete Room entities.
  */
 class RoomDAO(id: EntityID<Int>): IntEntity(id) {
     companion object : IntEntityClass<RoomDAO>(RoomTable) {
+        /**
+         * Create a [Room] from DAO data.
+         *
+         * NOTE: Client will *never* know about DAO internals - therefore the decoupling.
+         */
         fun toRoom(dao: RoomDAO) = Room(
             dao.name,
             dao.reference
@@ -32,9 +39,12 @@ class RoomDAO(id: EntityID<Int>): IntEntity(id) {
 }
 
 /**
- * Actual room repo accessor.
+ * Room repo accessor for manipulating database Room entries.
  */
 class RoomRepository : RepoCore<Room> {
+    /**
+     * Find a [Room] by so called *reference ID*.
+     */
     override suspend fun byRef(id: Int): Room? = suspendTransaction {
         RoomDAO
             .find{ (RoomTable.reference eq id) }
@@ -43,12 +53,18 @@ class RoomRepository : RepoCore<Room> {
             .firstOrNull()
     }
 
+    /**
+     * Update/insert a [Room] in/into database.
+     */
     override suspend fun upsert(refId: Int, obj: Room): Boolean {
+        // 'UPDATE' if room refID exists...
         if (byRef(refId) != null) {
             RoomTable.update({ RoomTable.reference eq refId }) {
                 it[name] = obj.name
             }
-        } else {
+        }
+        // ...and 'INSERT' if it doesn't.
+        else {
             RoomTable.insert {
                 it[name] = obj.name
                 it[reference] = obj.reference

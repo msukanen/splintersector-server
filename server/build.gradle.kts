@@ -29,6 +29,7 @@ dependencies {
     implementation(libs.exposed.money)
     implementation(libs.kotlinx.serialization.json)
     implementation(libs.mysql.connector.java)
+    implementation(libs.jjwt)
     //implementation(libs.exposed.spring.boot.starter)
     testImplementation(libs.ktor.server.tests)
     testImplementation(libs.kotlin.test.junit)
