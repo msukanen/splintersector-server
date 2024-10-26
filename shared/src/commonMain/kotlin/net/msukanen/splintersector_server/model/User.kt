@@ -24,5 +24,5 @@ data class User(
     /** User password.*/
     val pwd: String,
     /** User's role(s).*/
-    val roles: List<UserRole>
+    var roles: List<UserRole>
 )

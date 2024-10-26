@@ -17,7 +17,7 @@ object UserTable : IntIdTable("users") {
 
 object UserRoleTable : IntIdTable("user_roles") {
     val userId = reference("userId", id)
-    val role = varchar("role", 16)
+    var role = varchar("role", 16)
 }
 
 class UserRoleDAO(id: EntityID<Int>): IntEntity(id) {
@@ -25,7 +25,7 @@ class UserRoleDAO(id: EntityID<Int>): IntEntity(id) {
         fun toUserRole(dao: UserRoleDAO): UserRole = UserRole.valueOf(dao.role)
     }
 
-    val role by UserRoleTable.role
+    var role by UserRoleTable.role
 }
 
 class UserDAO(id: EntityID<Int>): IntEntity(id) {
@@ -60,6 +60,7 @@ class UserRepo {
             UserRoleTable.deleteWhere { userId eq user.id }
             user.roles.forEach { r ->
                 UserRoleTable.insert {
+                    it[userId] = user.id
                     it[role] = r.toString()
                 }
             }
