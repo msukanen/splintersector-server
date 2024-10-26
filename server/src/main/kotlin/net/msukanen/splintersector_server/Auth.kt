@@ -1,7 +1,6 @@
 package net.msukanen.splintersector_server
 
-import net.msukanen.splintersector_server.model.User
+import kotlinx.serialization.Serializable
 
-fun authUser(name: String, pwd: String): User? {
-    return null
-}
+@Serializable
+data class AuthResponse(val token: String)

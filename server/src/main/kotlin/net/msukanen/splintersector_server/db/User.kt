@@ -1,5 +1,7 @@
 package net.msukanen.splintersector_server.db
 
+import kotlinx.coroutines.runBlocking
+import net.msukanen.splintersector_server.model.AuthUser
 import net.msukanen.splintersector_server.model.User
 import net.msukanen.splintersector_server.model.UserRole
 import org.jetbrains.exposed.dao.IntEntity
@@ -9,6 +11,7 @@ import org.jetbrains.exposed.dao.id.IntIdTable
 import org.jetbrains.exposed.sql.deleteWhere
 import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
 import org.jetbrains.exposed.sql.insert
+import org.jetbrains.exposed.sql.transactions.experimental.newSuspendedTransaction
 
 /** SQL ←→ Exposed */
 object UserTable : IntIdTable("users") {
@@ -69,6 +72,12 @@ class UserRepo {
                     it[role] = r.toString()
                 }
             }
+        }
+    }
+
+    fun authenticate(authUser: AuthUser): User? = runBlocking {
+        newSuspendedTransaction {
+            byName(authUser.name)?.takeIf { it.pwd == authUser.pwd }
         }
     }
 }

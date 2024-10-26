@@ -16,6 +16,8 @@ const val DATABASE_URL = "jdbc:mysql://localhost:3306/sss_test"
 const val DATABASE_USER = "sss"
 @FatallyInsecure
 const val DATABASE_PASSWORD = "1234passthegas"
+@FatallyInsecure
+const val NOT_VERY_SECRET_KEY = "not-very-secret-key"
 
 const val DATABASE_TEST_USER = "Matti Meikalainen"
 const val DATABASE_TEST_PWD = "1234"

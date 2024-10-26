@@ -1,5 +1,7 @@
 import io.ktor.client.call.body
 import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
+import io.ktor.client.request.get
+import io.ktor.client.request.header
 import io.ktor.client.request.post
 import io.ktor.client.request.setBody
 import io.ktor.http.ContentType
@@ -7,6 +9,8 @@ import io.ktor.http.HttpStatusCode
 import io.ktor.http.contentType
 import io.ktor.serialization.kotlinx.json.json
 import io.ktor.server.testing.testApplication
+import kotlinx.serialization.Serializable
+import net.msukanen.splintersector_server.AuthResponse
 import net.msukanen.splintersector_server.db.srvonly.DATABASE_PASSWORD
 import net.msukanen.splintersector_server.db.srvonly.DATABASE_TEST_USER
 import net.msukanen.splintersector_server.db.srvonly.DATABASE_TEST_PWD
@@ -18,6 +22,7 @@ import net.msukanen.splintersector_server.db.RoomRepo
 import net.msukanen.splintersector_server.db.UserRepo
 import net.msukanen.splintersector_server.model.AuthUser
 import org.jetbrains.exposed.sql.Database
+import kotlin.math.log
 import kotlin.test.BeforeTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -48,12 +53,15 @@ class AuthUserTest {
         }
 
         val user = AuthUser(DATABASE_TEST_USER, DATABASE_TEST_PWD)
-        val response = client.post("/login") {
+        var response = client.post("/login") {
             contentType(ContentType.Application.Json)
             setBody(user)
         }
-
+        val loginResult = response.body<AuthResponse>()
+        val token = loginResult.token
+        response = client.get("/room/r/1") {
+            header("Authorization", "Bearer $token")
+        }
         assertEquals(HttpStatusCode.OK, response.status)
-        println(response.body<String>())
     }
 }

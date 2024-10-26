@@ -30,7 +30,7 @@ class RoomDBTest {
             RoomRepo().byRef(2)
         }
         assertNotNull(room, "Room with refId 2 not found")
-        Unit
+        Unit//assertNotNull() req.
     }
 
     @Test
@@ -38,11 +38,13 @@ class RoomDBTest {
         val connections = newSuspendedTransaction(db = db) {
             RoomConnectionRepo().allByRef(3)
         }
-        assertNotNull(connections)
-        assertNotEquals(0, connections.size)
-        connections.forEach {
-            println(it)
+        assertNotNull(connections).also {
+            assertNotEquals(0, connections.size)
+            connections.forEach {
+                println(it)
+            }
         }
+        Unit//assertNotNull() req.
     }
 
     @Test
