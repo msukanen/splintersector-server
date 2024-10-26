@@ -12,6 +12,9 @@ enum class UserRole {
     Player
 }
 
+@Serializable
+data class AuthUser(val name: String, val pwd: String)
+
 /**
  * User info container.
  */
@@ -26,5 +29,6 @@ data class User(
     /** User's role(s).*/
     var roles: List<UserRole>
 ) {
+    /** Check if user has the [role] in question.*/
     fun has(role: UserRole) = roles.contains(role)
 }

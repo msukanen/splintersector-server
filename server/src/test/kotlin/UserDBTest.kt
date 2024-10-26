@@ -1,7 +1,10 @@
 import kotlinx.coroutines.runBlocking
-import net.msukanen.splintersector_server.DATABASE_PASSWORD
-import net.msukanen.splintersector_server.DATABASE_URL
-import net.msukanen.splintersector_server.DATABASE_USER
+import net.msukanen.splintersector_server.db.srvonly.DATABASE_PASSWORD
+import net.msukanen.splintersector_server.db.srvonly.DATABASE_TEST_PWD
+import net.msukanen.splintersector_server.db.srvonly.DATABASE_TEST_ROLE
+import net.msukanen.splintersector_server.db.srvonly.DATABASE_TEST_USER
+import net.msukanen.splintersector_server.db.srvonly.DATABASE_URL
+import net.msukanen.splintersector_server.db.srvonly.DATABASE_USER
 import net.msukanen.splintersector_server.db.UserRepo
 import net.msukanen.splintersector_server.model.User
 import net.msukanen.splintersector_server.model.UserRole
@@ -27,7 +30,7 @@ class UserDBTest {
         )
         user = runBlocking {
             newSuspendedTransaction(db = db) {
-                repo.byName("Matti Meikalainen")
+                repo.byName(DATABASE_TEST_USER)
             }
         }
         assertNotNull(user)
@@ -36,9 +39,9 @@ class UserDBTest {
     @Test
     fun `see if we manage to fetch a User properly`() = runBlocking {
         user?.also {
-            assertEquals("Matti Meikalainen", user!!.name)
-            assertEquals("pass1234", user!!.pwd)// this is set in scratches/users.sql (which isn't in repo).
-            assertEquals("DM", user!!.roles[0].name)
+            assertEquals(DATABASE_TEST_USER, user!!.name)
+            assertEquals(DATABASE_TEST_PWD, user!!.pwd)// this is set in scratches/users.sql (which isn't in repo).
+            assertEquals(DATABASE_TEST_ROLE, user!!.roles[0])
         }
         Unit
     }
@@ -55,7 +58,7 @@ class UserDBTest {
         }
 
         // re-retrieve the User, just in case of i.e. caching interfering otherwise.
-        var usr = repo.byName("Matti Meikalainen")
+        var usr = repo.byName(DATABASE_TEST_USER)
         assertNotNull(usr).also {
             assertTrue(usr.has(UserRole.Player))
         }
@@ -65,7 +68,7 @@ class UserDBTest {
             repo.upsert(user!!)
         }
         // re-retrieve the User; see that they have *only* "DM" set.
-        usr = repo.byName("Matti Meikalainen")
+        usr = repo.byName(DATABASE_TEST_USER)
         assertNotNull(usr).also {
             assertEquals(1, usr.roles.size)
             assertTrue(usr.has(UserRole.DM))

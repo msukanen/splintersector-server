@@ -1,4 +1,6 @@
-package net.msukanen.splintersector_server
+package net.msukanen.splintersector_server.db.srvonly
+
+import net.msukanen.splintersector_server.model.UserRole
 
 @Target(AnnotationTarget.CLASS,
         AnnotationTarget.FUNCTION,
@@ -14,3 +16,7 @@ const val DATABASE_URL = "jdbc:mysql://localhost:3306/sss_test"
 const val DATABASE_USER = "sss"
 @FatallyInsecure
 const val DATABASE_PASSWORD = "1234passthegas"
+
+const val DATABASE_TEST_USER = "Matti Meikalainen"
+const val DATABASE_TEST_PWD = "1234"
+val DATABASE_TEST_ROLE = UserRole.DM

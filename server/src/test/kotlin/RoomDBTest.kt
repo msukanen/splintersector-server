@@ -1,9 +1,9 @@
 import kotlinx.coroutines.runBlocking
-import net.msukanen.splintersector_server.DATABASE_PASSWORD
-import net.msukanen.splintersector_server.DATABASE_URL
-import net.msukanen.splintersector_server.DATABASE_USER
+import net.msukanen.splintersector_server.db.srvonly.DATABASE_PASSWORD
+import net.msukanen.splintersector_server.db.srvonly.DATABASE_URL
+import net.msukanen.splintersector_server.db.srvonly.DATABASE_USER
 import net.msukanen.splintersector_server.db.RoomConnectionRepo
-import net.msukanen.splintersector_server.db.RoomRepository
+import net.msukanen.splintersector_server.db.RoomRepo
 import org.jetbrains.exposed.sql.Database
 import org.jetbrains.exposed.sql.transactions.experimental.newSuspendedTransaction
 import kotlin.test.BeforeTest
@@ -27,7 +27,7 @@ class RoomDBTest {
     @Test
     fun `see if we get Room#2 data`() = runBlocking {
         val room = newSuspendedTransaction(db = db) {
-            RoomRepository().byRef(2)
+            RoomRepo().byRef(2)
         }
         assertNotNull(room, "Room with refId 2 not found")
         Unit
@@ -48,7 +48,7 @@ class RoomDBTest {
     @Test
     fun `server should survive bad refIds`() = runBlocking {
         val room = newSuspendedTransaction(db = db) {
-            RoomRepository().byRef(-100)
+            RoomRepo().byRef(-100)
         }
         assertNull(room)
     }

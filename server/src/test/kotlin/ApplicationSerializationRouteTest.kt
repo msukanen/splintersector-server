@@ -9,7 +9,8 @@ import io.ktor.server.testing.*
 import kotlinx.serialization.json.Json
 import net.msukanen.splintersector_server.configureDatabases
 import net.msukanen.splintersector_server.configureSerialization
-import net.msukanen.splintersector_server.db.RoomRepository
+import net.msukanen.splintersector_server.db.RoomRepo
+import net.msukanen.splintersector_server.db.UserRepo
 import net.msukanen.splintersector_server.model.Room
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -19,7 +20,7 @@ class ApplicationSerializationRouteTest {
     fun `room can be found with refId`() = testApplication {
         application {
             configureDatabases()
-            configureSerialization(RoomRepository())
+            configureSerialization(RoomRepo(), UserRepo())
         }
 
         val client = createClient {
@@ -43,7 +44,7 @@ class ApplicationSerializationRouteTest {
     fun `server access obeys rules`() = testApplication {
         application {
             configureDatabases()
-            configureSerialization(RoomRepository())
+            configureSerialization(RoomRepo(), UserRepo())
         }
 
         val client = createClient {

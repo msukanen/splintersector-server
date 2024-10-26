@@ -10,11 +10,13 @@ import org.jetbrains.exposed.sql.deleteWhere
 import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
 import org.jetbrains.exposed.sql.insert
 
+/** SQL ←→ Exposed */
 object UserTable : IntIdTable("users") {
     val name = varchar("name", 64)
     val pwd = varchar("pwd", 128)
 }
 
+/** SQL ←→ Exposed */
 object UserRoleTable : IntIdTable("user_roles") {
     val userId = reference("userId", id)
     var role = varchar("role", 16)
@@ -30,6 +32,7 @@ class UserRoleDAO(id: EntityID<Int>): IntEntity(id) {
 
 class UserDAO(id: EntityID<Int>): IntEntity(id) {
     companion object : IntEntityClass<UserDAO>(UserTable) {
+        /** Convert DAO into concrete User entity.*/
         fun toUser(dao: UserDAO): User {
             val roles = UserRoleDAO
                 .find { (UserRoleTable.userId eq dao.id )}
@@ -44,6 +47,8 @@ class UserDAO(id: EntityID<Int>): IntEntity(id) {
     }
     val name by UserTable.name
     val pwd by UserTable.pwd
+
+    fun toUser() = toUser(this)
 }
 
 class UserRepo {

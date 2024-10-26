@@ -8,11 +8,7 @@ import org.jetbrains.exposed.dao.id.IntIdTable
 import org.jetbrains.exposed.sql.insert
 import org.jetbrains.exposed.sql.update
 
-/**
- * Room table.
- *
- * Mirrors, more or less, the 'rooms' table in the underlying database.
- */
+/** SQL ←→ Exposed.*/
 object RoomTable : IntIdTable("rooms") {
     val name = varchar("name", 64)
     val reference = integer("refId")
@@ -23,11 +19,7 @@ object RoomTable : IntIdTable("rooms") {
  */
 class RoomDAO(id: EntityID<Int>): IntEntity(id) {
     companion object : IntEntityClass<RoomDAO>(RoomTable) {
-        /**
-         * Create a [Room] from DAO data.
-         *
-         * NOTE: Client will *never* know about DAO internals - therefore the decoupling.
-         */
+        /** Create a [Room] from DAO data.*/
         fun toRoom(dao: RoomDAO) = Room(
             dao.name,
             dao.reference
@@ -36,25 +28,32 @@ class RoomDAO(id: EntityID<Int>): IntEntity(id) {
 
     var name by RoomTable.name
     var reference by RoomTable.reference
+
+    fun toRoom() = toRoom(this)
 }
 
 /**
  * Room repo accessor for manipulating database Room entries.
  */
-class RoomRepository : RepoCore<Room> {
+class RoomRepo : RepoCore<Room> {
     /**
      * Find a [Room] by so called *reference ID*.
+     *
+     * @param[refId] Room #refID.
      */
-    override suspend fun byRef(id: Int): Room? = suspendTransaction {
+    override suspend fun byRef(refId: Int): Room? = suspendTransaction {
         RoomDAO
-            .find{ (RoomTable.reference eq id) }
+            .find{ (RoomTable.reference eq refId) }
             .limit(1)
             .map(RoomDAO::toRoom)
             .firstOrNull()
     }
 
     /**
-     * Update/insert a [Room] in/into database.
+     * Update a [Room] in or insert into database.
+     *
+     * @param[refId] Room #refID
+     * @param[obj] [Room]
      */
     override suspend fun upsert(refId: Int, obj: Room): Boolean {
         // 'UPDATE' if room refID exists...

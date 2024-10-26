@@ -1,6 +1,5 @@
 package net.msukanen.splintersector_server
 
-import com.auth0.jwt.algorithms.Algorithm
 import com.auth0.jwt.exceptions.JWTVerificationException
 import io.ktor.http.HttpStatusCode
 import io.ktor.server.application.*
@@ -9,9 +8,15 @@ import io.ktor.server.netty.*
 import io.ktor.server.plugins.contentnegotiation.ContentNegotiation
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
-import net.msukanen.splintersector_server.db.RoomRepository
+import net.msukanen.splintersector_server.db.RoomRepo
 import org.jetbrains.exposed.sql.Database
 import io.ktor.serialization.kotlinx.json.*
+import io.ktor.server.request.receive
+import net.msukanen.splintersector_server.db.UserRepo
+import net.msukanen.splintersector_server.model.AuthUser
+import net.msukanen.splintersector_server.db.srvonly.DATABASE_PASSWORD
+import net.msukanen.splintersector_server.db.srvonly.DATABASE_URL
+import net.msukanen.splintersector_server.db.srvonly.DATABASE_USER
 
 fun main() {
     embeddedServer(Netty, port = 15551, module = Application::module)
@@ -19,9 +24,10 @@ fun main() {
 }
 
 fun Application.module() {
-    val repository = RoomRepository()
+    val roomRepo = RoomRepo()
+    val userRepo = UserRepo()
     configureDatabases()
-    configureSerialization(repository)
+    configureSerialization(roomRepo, userRepo)
 
     val serverInfo = """$SERVER_NAME @ $SERVER_HOST:$SERVER_PORT
                      |Running with ${getPlatform().name}
@@ -57,13 +63,16 @@ fun Application.configureDatabases() {
     )
 }
 
-fun Application.configureSerialization(repository: RoomRepository) {
+fun Application.configureSerialization(
+    roomRepo: RoomRepo,
+    userRepo: UserRepo
+) {
     install(ContentNegotiation) { json() }
 
     fun verifyTokenAndRole(token: String?, role: String): String? = try {
         "Yah"
     } catch (e: JWTVerificationException) {
-        "Nah"
+        null
     }
 
     routing {
@@ -71,7 +80,7 @@ fun Application.configureSerialization(repository: RoomRepository) {
             // Room by reference ID.
             get("/r/{refId}") {
                 call.parameters["refId"]?.toIntOrNull()
-                    ?.let { repository.byRef(it) }
+                    ?.let { roomRepo.byRef(it) }
                     ?.let { call.respond(it) }
                     ?: call.respond(HttpStatusCode.BadRequest)
             }
@@ -90,6 +99,10 @@ fun Application.configureSerialization(repository: RoomRepository) {
                     // TODO: handle player save here.
                     call.respond(HttpStatusCode.OK)
                 } ?: call.respond(HttpStatusCode.Unauthorized)
+            }
+
+            post("/login") {
+                val cred = call.receive<AuthUser>()
             }
         }
     }
