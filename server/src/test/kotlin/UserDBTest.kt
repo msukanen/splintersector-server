@@ -11,6 +11,7 @@ import kotlin.test.BeforeTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
+import kotlin.test.assertTrue
 
 class UserDBTest {
     private lateinit var db: Database
@@ -44,6 +45,7 @@ class UserDBTest {
 
     @Test
     fun `see if changing user role works`() = runBlocking {
+        // Add "Player" role.
         user?.also {
             val r = user!!.roles.toMutableList().apply { add(UserRole.Player) }
             user!!.roles = r
@@ -51,7 +53,23 @@ class UserDBTest {
                 repo.upsert(user!!)
             }
         }
-        val u = repo.byName("Matti Meikalainen")
-        assertEquals("Player", u!!.roles[1].name)
+
+        // re-retrieve the User, just in case of i.e. caching interfering otherwise.
+        var usr = repo.byName("Matti Meikalainen")
+        assertNotNull(usr).also {
+            assertTrue(usr.has(UserRole.Player))
+        }
+        // Drop back to "DM"-only as per defined in scratches/users.sql
+        user!!.roles = listOf(UserRole.DM)
+        newSuspendedTransaction {
+            repo.upsert(user!!)
+        }
+        // re-retrieve the User; see that they have *only* "DM" set.
+        usr = repo.byName("Matti Meikalainen")
+        assertNotNull(usr).also {
+            assertEquals(1, usr.roles.size)
+            assertTrue(usr.has(UserRole.DM))
+        }
+        Unit//due assertNotNull()
     }
 }

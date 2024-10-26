@@ -25,4 +25,6 @@ data class User(
     val pwd: String,
     /** User's role(s).*/
     var roles: List<UserRole>
-)
+) {
+    fun has(role: UserRole) = roles.contains(role)
+}
