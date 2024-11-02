@@ -1,3 +1,5 @@
+import org.gradle.kotlin.dsl.support.kotlinCompilerOptions
+
 plugins {
     alias(libs.plugins.kotlinJvm)
     alias(libs.plugins.ktor)
@@ -33,7 +35,7 @@ dependencies {
     //implementation(libs.exposed.spring.boot.starter)
     testImplementation(libs.ktor.server.tests)
     testImplementation(libs.kotlin.test.junit)
-    testImplementation(libs.ktor.client.content.negotiation.jvm)
+    testImplementation(libs.ktor.client.content.negotiation)
 }
 
 ktor {
@@ -47,6 +49,7 @@ ktor {
         ))
         localImageName.set("splintersector-server")
         imageTag.set("0.1.0-prealpha")
+        environmentVariable("DATABASE_URL", "jdbc:mysql://mysql:3306/sss_test")
     }
 }
 

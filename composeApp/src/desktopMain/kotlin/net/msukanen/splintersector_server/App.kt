@@ -18,7 +18,7 @@ import splintersector_server.composeapp.generated.resources.compose_multiplatfor
 
 @Composable
 @Preview
-fun App() {
+fun app() {
     MaterialTheme {
         var showContent by remember { mutableStateOf(false) }
         Column(Modifier.fillMaxWidth(), horizontalAlignment = Alignment.CenterHorizontally) {

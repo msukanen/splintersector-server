@@ -12,6 +12,9 @@ enum class UserRole {
     Player
 }
 
+/**
+ * Bare-bones data class to deliver auth info from client to server.
+ */
 @Serializable
 data class AuthUser(val name: String, val pwd: String)
 

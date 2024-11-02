@@ -25,6 +25,9 @@ object UserRoleTable : IntIdTable("user_roles") {
     var role = varchar("role", 16)
 }
 
+/**
+ * DAO for [UserRole] related activity.
+ */
 class UserRoleDAO(id: EntityID<Int>): IntEntity(id) {
     companion object : IntEntityClass<UserRoleDAO>(UserRoleTable) {
         fun toUserRole(dao: UserRoleDAO): UserRole = UserRole.valueOf(dao.role)
@@ -33,6 +36,9 @@ class UserRoleDAO(id: EntityID<Int>): IntEntity(id) {
     var role by UserRoleTable.role
 }
 
+/**
+ * DAO for [User] related activity.
+ */
 class UserDAO(id: EntityID<Int>): IntEntity(id) {
     companion object : IntEntityClass<UserDAO>(UserTable) {
         /** Convert DAO into concrete User entity.*/
@@ -54,8 +60,18 @@ class UserDAO(id: EntityID<Int>): IntEntity(id) {
     fun toUser() = toUser(this)
 }
 
+/**
+ * User repository.
+ */
 class UserRepo {
+    /**
+     * Get a [User] by name.
+     *
+     * @param[name] name of the user to look for.
+     * @return [User] or `null`.
+     */
     suspend fun byName(name: String): User? = suspendTransaction {
+        println("<BYNAME> $name")
         UserDAO
             .find { (UserTable.name eq name) }
             .limit(1)
@@ -63,6 +79,11 @@ class UserRepo {
             .firstOrNull()
     }
 
+    /**
+     * Update an existing [User] in (or insert a new one into) database.
+     *
+     * @param[user] [User] to update/insert.
+     */
     suspend fun upsert(user: User) {
         byName(user.name)?.let {
             UserRoleTable.deleteWhere { userId eq user.id }
@@ -75,6 +96,14 @@ class UserRepo {
         }
     }
 
+    /**
+     * Attempt to authenticate the given [AuthUser], giving us [User] to work with.
+     * If authentication fails we return `null`.
+     * @TODO better/different failure case behavior.
+     *
+     * @param[authUser] some [AuthUser] data.
+     * @return [User] or `null`.
+     */
     fun authenticate(authUser: AuthUser): User? = runBlocking {
         newSuspendedTransaction {
             byName(authUser.name)?.takeIf { it.pwd == authUser.pwd }

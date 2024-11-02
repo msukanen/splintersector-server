@@ -1,3 +1,4 @@
+import org.gradle.kotlin.dsl.jvm
 import org.jetbrains.compose.desktop.application.dsl.TargetFormat
 
 plugins {
@@ -23,6 +24,11 @@ kotlin {
             implementation(libs.androidx.lifecycle.runtime.compose)
             implementation(libs.jjwt)
             implementation(projects.shared)
+            implementation(libs.ktor.client.core)
+            implementation(libs.ktor.serialization)
+            implementation(libs.ktor.serialization.kotlinx.json)
+            implementation(libs.kotlinx.serialization.json)
+            implementation(libs.ktor.client.content.negotiation)
         }
         desktopMain.dependencies {
             implementation(compose.desktop.currentOs)

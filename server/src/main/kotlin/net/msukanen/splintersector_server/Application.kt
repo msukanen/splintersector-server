@@ -19,11 +19,11 @@ import net.msukanen.splintersector_server.model.AuthUser
 import net.msukanen.splintersector_server.db.srvonly.DATABASE_PASSWORD
 import net.msukanen.splintersector_server.db.srvonly.DATABASE_URL
 import net.msukanen.splintersector_server.db.srvonly.DATABASE_USER
-import net.msukanen.splintersector_server.db.srvonly.NOT_VERY_SECRET_KEY
+import net.msukanen.splintersector_server.db.srvonly.JWT_SECRET
 import net.msukanen.splintersector_server.model.UserRole
 
 fun main() {
-    embeddedServer(Netty, port = 15551, module = Application::module)
+    embeddedServer(Netty, port = SERVER_PORT, module = Application::module)
         .start(wait = true)
 }
 
@@ -37,25 +37,21 @@ fun Application.module() {
                      |Running with ${getPlatform().name}
                      |  ↓
                      """.trimMargin()
-    val usage = """Usage: /spnlsect/<path>?id=<value>
+    suspend fun usage(call: RoutingCall) {
+        val use = """Usage: /spnlsect/<path>?id=<value>
                 |
                 |Where:  <path>    - path or something...
                 |        <id>      - some id along the <path>
                 """.trimIndent()
+        call.respondText("""$serverInfo
+                           |$use   
+                           """.trimMargin())
+    }
 
     routing {
-        get("/") {
-            val response = """$serverInfo
-                           |$usage   
-                           """.trimMargin()
-            call.respondText(response)
-        }
-        get("/splnsect") {
-            val response = """$serverInfo
-                           |$usage
-                           """.trimMargin()
-            call.respondText(response)
-        }
+        get("/") { usage(call)}
+        get("/splnsect") { usage(call)}
+        get("/help") { usage(call)}
     }
 }
 
@@ -75,7 +71,7 @@ fun Application.configureSerialization(
 
     fun verifyTokenAndRole(token: String?, role: UserRole): String? = try {
         with(JWT
-            .require(Algorithm.HMAC512(NOT_VERY_SECRET_KEY))
+            .require(Algorithm.HMAC512(JWT_SECRET))
             .build()
             .verify(token)) {
                 getClaim("roles")
@@ -120,14 +116,15 @@ fun Application.configureSerialization(
         route("/") {
             post("/login") {
                 val cred = call.receive<AuthUser>()
-                UserRepo().authenticate(cred)?.let {
+                userRepo.authenticate(cred)?.let {
                     val token = {
-                        val algo = Algorithm.HMAC512(NOT_VERY_SECRET_KEY)
+                        val algo = Algorithm.HMAC512(JWT_SECRET)
                         JWT.create()
                             .withSubject(it.id.toString())
                             .withClaim("roles", it.roles.map { it.name })
                             .sign(algo)
                     }
+                    println("<DEBUG> tok: $token")
                     call.respond(AuthResponse(token()))
                 } ?: call.respond(HttpStatusCode.Unauthorized)
             }
